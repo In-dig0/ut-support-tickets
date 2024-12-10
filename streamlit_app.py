@@ -22,25 +22,25 @@ def display_user_section() -> None:
     """ Show a section to declare the user informations """
     st.header(":orange[User informations]")
     st.divider()
-    req_department = st.selectbox("Requester Department", ["", "DMN-ACCOUNTING", "DTD-DESIGN TECHNICAL DEPARTMENT", "COMMERCIALE AFTER MARKET"])
+    req_department = st.selectbox("Requester Department(:red[*])", ["", "DMN-ACCOUNTING", "DTD-DESIGN TECHNICAL DEPARTMENT", "COMMERCIALE AFTER MARKET"])
     if req_department == "DMN-ACCOUNTING":
-        req_user = st.selectbox("Requester User", ["", "COMELLINI GIORGIO", "ROMANI CORRADO", "ROSSI PAOLA"])
+        req_user = st.selectbox("Requester User(:red[*])", ["", "COMELLINI GIORGIO", "ROMANI CORRADO", "ROSSI PAOLA"])
     elif req_department == "DTD-DESIGN TECHNICAL DEPARTMENT":
-        req_user = st.selectbox("Requester User", ["", "CARLINI MICHELE", "FENARA GABRIELE", "PALMA NICOLA"])
+        req_user = st.selectbox("Requester User(:red[*])", ["", "CARLINI MICHELE", "FENARA GABRIELE", "PALMA NICOLA"])
     elif req_department == "DTD-DESIGN TECHNICAL DEPARTMENT":
-        req_user = st.selectbox("Requester User", ["", "GIORGI IVAN", "ANGOTTI FRANCESCO", "BALDINI ROBERTO"])
+        req_user = st.selectbox("Requester User(:red[*])", ["", "GIORGI IVAN", "ANGOTTI FRANCESCO", "BALDINI ROBERTO"])
 
 def display_productgroup_section() -> None:
     """ Show a section to declare the product group informations """
     st.header(":orange[Product group informations]")
     st.divider()
-    product_line = st.selectbox("Product line", ["", "POWER TAKE OFFs", "HYDRAULICS", "CYLINDERS", "ALL"])
+    product_line = st.selectbox("Product line(:red[*])", ["", "POWER TAKE OFFs", "HYDRAULICS", "CYLINDERS", "ALL"])
     if product_line == "POWER TAKE OFFs":
-        product_family = st.selectbox("Product family", ["", "GEARBOX PTO", "ENGINE PTO", "SPLIT SHAFT PTO", "ENGINE FLYWHEEL PTO (EFP/SAE)"])
+        product_family = st.selectbox("Product family(:red[*])", ["", "GEARBOX PTO", "ENGINE PTO", "SPLIT SHAFT PTO", "PARALLEL GEARBOXES"])
     elif product_line == "HYDRAULICS":
-        product_family = st.selectbox("Product family", ["", "PUMPS", "MOTORS", "VALVES", "WET KITS"])
+        product_family = st.selectbox("Product family(:red[*])"", ["", "PUMPS", "MOTORS", "VALVES", "WET KITS"])
     elif product_line == "CYLINDERS":
-        product_family = st.selectbox("Product family", ["", "FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"])
+        product_family = st.selectbox("Product family(:red[*])"", ["", "FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"])
 
 def create_dataframe() -> pd.DataFrame:
     """ Create a dataframe with a random dataset"""
@@ -95,7 +95,15 @@ def display_ticket_section() -> None:
     # We're adding tickets via an `st.form` and some input widgets. If widgets are used
     # in a form, the app will only rerun once the submit button is pressed.
     with st.form("add_ticket_form"):
-        issue = st.text_area("Describe the issue")
+        obj_type = st.selectbox("Request type (:red[*])",["DOCUMENTATION", "PRODUCT", "SERVICE"]
+        if obj_type == "PRODUCT":
+            obj_category = st.selectbox("Request category(:red[*])", ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"])
+        elif obj_type == "DOCUMENTATION":
+            obj_category = st.selectbox("Request category(:red[*])", ["WEBPTO", "DRAWING", "IMDS (INTERNATIONAL MATERIAL DATA SYSTEM)", "CATALOGUE"])
+        elif obj_type == "SERVICE":
+            obj_category = st.selectbox("Request category(:red[*])", ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"])
+        request_title = st.text_info("Request title(:red[*])")
+        request_info = st.text_area("Request details(:red[*])")
         priority = st.selectbox("Priority", ["High", "Medium", "Low"])
         submitted = st.form_submit_button("Submit")
 
