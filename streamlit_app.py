@@ -38,9 +38,9 @@ def display_productgroup_section() -> None:
     if product_line == "POWER TAKE OFFs":
         product_family = st.selectbox("Product family(:red[*])", ["", "GEARBOX PTO", "ENGINE PTO", "SPLIT SHAFT PTO", "PARALLEL GEARBOXES"])
     elif product_line == "HYDRAULICS":
-        product_family = st.selectbox("Product family(:red[*])"", ["", "PUMPS", "MOTORS", "VALVES", "WET KITS"])
+        product_family = st.selectbox("Product family(:red[*])", ["", "PUMPS", "MOTORS", "VALVES", "WET KITS"])
     elif product_line == "CYLINDERS":
-        product_family = st.selectbox("Product family(:red[*])"", ["", "FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"])
+        product_family = st.selectbox("Product family(:red[*])", ["", "FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"])
 
 def create_dataframe() -> pd.DataFrame:
     """ Create a dataframe with a random dataset"""
@@ -95,7 +95,7 @@ def display_ticket_section() -> None:
     # We're adding tickets via an `st.form` and some input widgets. If widgets are used
     # in a form, the app will only rerun once the submit button is pressed.
     with st.form("add_ticket_form"):
-        obj_type = st.selectbox("Request type (:red[*])",["DOCUMENTATION", "PRODUCT", "SERVICE"]
+        obj_type = st.selectbox("Request type (:red[*])",["DOCUMENTATION", "PRODUCT", "SERVICE"])
         if obj_type == "PRODUCT":
             obj_category = st.selectbox("Request category(:red[*])", ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"])
         elif obj_type == "DOCUMENTATION":
