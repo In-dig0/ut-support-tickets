@@ -19,101 +19,143 @@ def display_app_title() -> None:
     )
 
 
-def display_user_section() -> pd.DataFrame:
+def display_user_section() -> dict:
     """ Show a section to declare the user informations """
     st.header(":orange[User informations]")
     st.divider()
-    req_department = st.selectbox("Requester Department(:red[*])", ["DMN-ACCOUNTING", "DTD-DESIGN TECHNICAL DEPARTMENT", "COMMERCIALE AFTER MARKET"], index=None)
+    req_department = ""
+    req_user = ""
+    req_department = st.selectbox(":blue[Requester Department(:red[*])]", ["DMN-ACCOUNTING", "DTD-DESIGN TECHNICAL DEPARTMENT", "COMMERCIALE AFTER MARKET"], index=None)
     if req_department == "DMN-ACCOUNTING":
-        req_user = st.selectbox("Requester User(:red[*])", ["COMELLINI GIORGIO", "ROMANI CORRADO", "ROSSI PAOLA"], index=None)
+        req_user = st.selectbox(":blue[Requester User(:red[*])]", ["COMELLINI GIORGIO", "ROMANI CORRADO", "ROSSI PAOLA"], index=None)
     elif req_department == "DTD-DESIGN TECHNICAL DEPARTMENT":
-        req_user = st.selectbox("Requester User(:red[*])", ["CARLINI MICHELE", "FENARA GABRIELE", "PALMA NICOLA"], index=None)
+        req_user = st.selectbox(":blue[Requester User(:red[*])]", ["CARLINI MICHELE", "FENARA GABRIELE", "PALMA NICOLA"], index=None)
     elif req_department == "COMMERCIALE AFTER MARKET":
-        req_user = st.selectbox("Requester User(:red[*])", ["GIORGI IVAN", "ANGOTTI FRANCESCO", "BALDINI ROBERTO"], index=None)
-    df_out = pd.DataFrame(
-             [
-                 {
+        req_user = st.selectbox(":blue[Requester User(:red[*])]", ["GIORGI IVAN", "ANGOTTI FRANCESCO", "BALDINI ROBERTO"], index=None)
+    rec_out =    {
                      "Req_dept": req_department,
                      "Req_user": req_user
                  }
-             ]
-         )
-    return df_out        
+           
+    return rec_out        
 
 
-def display_productgroup_section() -> pd.DataFrame:
+def display_productgroup_section() -> dict:
     """ Show a section to declare the product group informations """
     st.header(":orange[Product group informations]")
     st.divider()
-    product_line = st.selectbox("Product line(:red[*])", ["POWER TAKE OFFs", "HYDRAULICS", "CYLINDERS", "ALL"], index=None)
+    product_line = ""
+    product_family = ""
+    product_line = st.selectbox(":blue[Product line(:red[*])]", ["POWER TAKE OFFs", "HYDRAULICS", "CYLINDERS", "ALL"], index=None)
     if product_line == "POWER TAKE OFFs":
-        product_family = st.selectbox("Product family(:red[*])", ["GEARBOX PTO", "ENGINE PTO", "SPLIT SHAFT PTO", "PARALLEL GEARBOXES"], index=None)
+        product_family = st.selectbox(":blue[Product family(:red[*])]", ["GEARBOX PTO", "ENGINE PTO", "SPLIT SHAFT PTO", "PARALLEL GEARBOXES"], index=None)
     elif product_line == "HYDRAULICS":
-        product_family = st.selectbox("Product family(:red[*])", ["PUMPS", "MOTORS", "VALVES", "WET KITS"], index=None)
+        product_family = st.selectbox(":blue[Product family(:red[*])]", ["PUMPS", "MOTORS", "VALVES", "WET KITS"], index=None)
     elif product_line == "CYLINDERS":
-        product_family = st.selectbox("Product family(:red[*])", ["FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"], index=None)
-    df_out = pd.DataFrame(
-             [
-                 {
+        product_family = st.selectbox(":blue[Product family(:red[*])]", ["FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"], index=None)
+    rec_out =    {
                      "Prd_line": product_line,
                      "Prd_family": product_family
                  }
-             ]
-         )
-    return df_out 
+    return rec_out 
 
 
-def display_ticket_section() -> pd.DataFrame:
+def display_request_section() -> dict:
     """ """
-    # Show a section to add a new ticket.
-    st.header("Add a ticket")
+    st.header(":orange[Add a request]")
+    st.divider()    
+    req_type = ""
+    req_category = ""
+    req_priority = st.selectbox(":blue[Priority]", ["High", "Medium", "Low"], index=1)
+    req_type = st.selectbox(":blue[Request type (:red[*])]",["DOCUMENTATION", "PRODUCT", "SERVICE"], index=None)
+    if req_type == "PRODUCT":
+        req_category = st.selectbox(":blue[Request category(:red[*])]", ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"], index=None)
+    elif req_type == "DOCUMENTATION":
+        req_category = st.selectbox(":blue[Request category(:red[*])]", ["WEBPTO", "DRAWING", "IMDS (INTERNATIONAL MATERIAL DATA SYSTEM)", "CATALOGUE"], index=None)
+    elif req_type == "SERVICE":
+        req_category = st.selectbox(":blue[Request category(:red[*])]", ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"], index=None)
+    req_title = st.text_input(":blue[Request title(:red[*])]")
+    req_detail = st.text_area(":blue[Request details(:red[*])]")
+    rec_out =    {
+                    "Req_priority": req_priority, 
+                    "Req_type": req_type,
+                    "Req_category": req_category,                    
+                    "Req_title": req_title,
+                    "Req_info": req_detail
+                }
+    return rec_out 
 
-    # We're adding tickets via an `st.form` and some input widgets. If widgets are used
-    # in a form, the app will only rerun once the submit button is pressed.
-    with st.form("add_ticket_form"):
-        req_type = st.selectbox("Request type (:red[*])",["DOCUMENTATION", "PRODUCT", "SERVICE"], index=None)
-        if req_type == "PRODUCT":
-            req_category = st.selectbox("Request category(:red[*])", ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"], index=None)
-        elif req_type == "DOCUMENTATION":
-            req_category = st.selectbox("Request category(:red[*])", ["WEBPTO", "DRAWING", "IMDS (INTERNATIONAL MATERIAL DATA SYSTEM)", "CATALOGUE"], index=None)
-        elif req_type == "SERVICE":
-            req_category = st.selectbox("Request category(:red[*])", ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"], index=None)
-        req_title = st.text_input("Request title(:red[*])")
-        req_info = st.text_area("Request details(:red[*])")
-        req_priority = st.selectbox("Priority", ["High", "Medium", "Low"], index=1)
-        df_out = pd.DataFrame(
-             [
-                 {
-                     "Req_type": req_type,
-                     "Req_category": req_category,
-                     "Req_priority": req_info,                     
-                     "Req_title": req_title,
-                     "Req_info": req_info
-                 }
-             ]
-         )        
-        submitted = st.form_submit_button("Submit")
+def check_ticket_fields(record: dict) -> bool:
+    res = not all(record.values())
+    return res
 
-    if submitted:
-    #     # Make a dataframe for the new ticket and append it to the dataframe in session
-    #     # state.
-        last_ticket_number = 10
-        today = datetime.datetime.now().strftime("%m-%d-%Y")
-        df_new = pd.DataFrame(
-             [
-                 {
-                     "ID": f"TICKET-{last_ticket_number+1}",
-                     "Title": request_title,
-                     "Status": "Open",
-                     "Priority": priority,
-                     "Date Submitted": today,
-                 }
-             ]
-         )
 
-    #     # Show a little success message.
-        st.write("Ticket submitted! Here are the ticket details:")
-        st.dataframe(df_new, use_container_width=True, hide_index=True)
+# if "my_text" not in st.session_state:
+#     st.session_state.my_text = ""
+
+# def submit():
+#     st.session_state.my_text = st.session_state.widget
+#     st.session_state.widget = ""
+
+# st.text_input("Enter text here", key="widget", on_change=submit)
+
+# my_text = st.session_state.my_text
+
+# st.write(my_text)
+
+
+# def display_ticket_section() -> pd.DataFrame:
+#     """ """
+
+
+#     # We're adding tickets via an `st.form` and some input widgets. If widgets are used
+#     # in a form, the app will only rerun once the submit button is pressed.
+#     with st.form("add_ticket_form"):
+#         req_type = ""
+#         req_category = ""
+#         req_type = st.selectbox("Request type (:red[*])",["DOCUMENTATION", "PRODUCT", "SERVICE"], index=None)
+#         if req_type == "PRODUCT":
+#             req_category = st.selectbox("Request category(:red[*])", ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"], index=None)
+#         elif req_type == "DOCUMENTATION":
+#             req_category = st.selectbox("Request category(:red[*])", ["WEBPTO", "DRAWING", "IMDS (INTERNATIONAL MATERIAL DATA SYSTEM)", "CATALOGUE"], index=None)
+#         elif req_type == "SERVICE":
+#             req_category = st.selectbox("Request category(:red[*])", ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"], index=None)
+#         req_title = st.text_input("Request title(:red[*])")
+#         req_info = st.text_area("Request details(:red[*])")
+#         req_priority = st.selectbox("Priority", ["High", "Medium", "Low"], index=1)
+#         df_out = pd.DataFrame(
+#              [
+#                  {
+#                      "Req_type": req_type,
+#                      "Req_category": req_category,
+#                      "Req_priority": req_info,                     
+#                      "Req_title": req_title,
+#                      "Req_info": req_info
+#                  }
+#              ]
+#          )        
+#         submitted = st.form_submit_button("Submit")
+
+#     if submitted:
+#     #     # Make a dataframe for the new ticket and append it to the dataframe in session
+#     #     # state.
+#         last_ticket_number = 10
+#         today = datetime.datetime.now().strftime("%m-%d-%Y")
+#         df_new = pd.DataFrame(
+#              [
+#                  {
+#                      "ID": f"TICKET-{last_ticket_number+1}",
+#                      "Title": request_title,
+#                      "Status": "Open",
+#                      "Priority": priority,
+#                      "Date Submitted": today,
+#                  }
+#              ]
+#          )
+
+#     #     # Show a little success message.
+#         st.write("Ticket submitted! Here are the ticket details:")
+#         st.dataframe(df_new, use_container_width=True, hide_index=True)
 #        st.session_state.df = pd.concat([df_new, st.session_state.df], axis=0)
 
     # # Show section to view and edit existing tickets in a table.
@@ -191,13 +233,28 @@ def display_ticket_section() -> pd.DataFrame:
 # )
 # st.altair_chart(priority_plot, use_container_width=True, theme="streamlit")
 
+def click_submit_button():
+    st.session_state.submit_clicked = True
+
 def main() -> None:
+    if 'submit_clicked' not in st.session_state:
+        st.session_state.submit_clicked = False
+
     display_app_title()
-    df_user = display_user_section()
-    df_pgrpup = display_productgroup_section()
-    df_req = display_ticket_section()
-    df_request = pd.concat([df_user, df_pgrpup, df_req], axis=1)
-    st.dataframe(df_request)
+    rec_user = display_user_section()
+    rec_pgroup = display_productgroup_section()
+    rec_req = display_request_section() 
+    rec_request = rec_user | rec_pgroup | rec_req
+    st.divider()
+    st.button("Submit", type="primary", on_click=click_submit_button)
+    if st.session_state.submit_clicked:
+        if check_ticket_fields(rec_request):
+            st.write(":red-background[**ERROR: please fill all mandatory fields (:red[*])]")
+        else:
+            df_request = pd.DataFrame([rec_request])
+            st.write("Ticket submitted! Here are the ticket details:")
+            st.dataframe(df_request, use_container_width=True, hide_index=True)
+            st.empty()
 
 if __name__ == "__main__":
     main()
