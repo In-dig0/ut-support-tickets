@@ -75,7 +75,7 @@ def display_request_section() -> dict:
     elif req_type == "SERVICE":
         req_category = st.selectbox(":blue[Request category(:red[*])]", ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"], index=None)
     req_title = st.text_input(":blue[Request title(:red[*])]")
-    req_detail = st.text_area(":blue[Request details(:red[*])]")
+    req_detail = st.text_area(":blue[Request details(:red[*])]", key="req_det")
     rec_out =    {
                     "Req_priority": req_priority, 
                     "Req_type": req_type,
@@ -86,7 +86,7 @@ def display_request_section() -> dict:
     return rec_out 
 
 def check_ticket_fields(record: dict) -> bool:
-    res = not all(record.values())
+    res = all(record.values())
     return res
 
 
@@ -236,6 +236,9 @@ def check_ticket_fields(record: dict) -> bool:
 def click_submit_button():
     st.session_state.submit_clicked = True
 
+def clear_text(t_txt):
+    st.session_state[t_txt] = ""
+
 def main() -> None:
     if 'submit_clicked' not in st.session_state:
         st.session_state.submit_clicked = False
@@ -249,12 +252,14 @@ def main() -> None:
     st.button("Submit", type="primary", on_click=click_submit_button)
     if st.session_state.submit_clicked:
         if check_ticket_fields(rec_request):
-            st.write(":red-background[**ERROR: please fill all mandatory fields (:red[*])]")
-        else:
             df_request = pd.DataFrame([rec_request])
             st.write("Ticket submitted! Here are the ticket details:")
             st.dataframe(df_request, use_container_width=True, hide_index=True)
-            st.empty()
+            
+        else:
+            st.write(":red-background[**ERROR: please fill all mandatory fields (:red[*])]")
+
+
 
 if __name__ == "__main__":
     main()
