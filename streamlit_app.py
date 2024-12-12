@@ -27,13 +27,17 @@ def display_user_section() -> dict:
     req_user = ""
     with st.container():
         st.header(":orange[User informations]")
-        req_department = st.selectbox(":blue[Requester Department(:red[*])]", ["DMN-ACCOUNTING", "DTD-DESIGN TECHNICAL DEPARTMENT", "COMMERCIALE AFTER MARKET"], index=None)
+        req_dept_values_00 = ["DMN-ACCOUNTING", "DTD-DESIGN TECHNICAL DEPARTMENT", "COMMERCIALE AFTER MARKET"]
+        req_department = st.selectbox(":blue[Requester Department(:red[*])]", req_dept_values_00, index=None)
         if req_department == "DMN-ACCOUNTING":
-            req_user = st.selectbox(":blue[Requester User(:red[*])]", ["COMELLINI GIORGIO", "ROMANI CORRADO", "ROSSI PAOLA"], index=None)
+            req_user_values_01 = ["COMELLINI GIORGIO", "ROMANI CORRADO", "ROSSI PAOLA"]
+            req_user = st.selectbox(":blue[Requester User(:red[*])]", req_user_values_01, index=None)
         elif req_department == "DTD-DESIGN TECHNICAL DEPARTMENT":
-            req_user = st.selectbox(":blue[Requester User(:red[*])]", ["CARLINI MICHELE", "FENARA GABRIELE", "PALMA NICOLA"], index=None)
+            req_user_values_02 = ["CARLINI MICHELE", "FENARA GABRIELE", "PALMA NICOLA"]
+            req_user = st.selectbox(":blue[Requester User(:red[*])]", req_user_values_02, index=None)
         elif req_department == "COMMERCIALE AFTER MARKET":
-            req_user = st.selectbox(":blue[Requester User(:red[*])]", ["GIORGI IVAN", "ANGOTTI FRANCESCO", "BALDINI ROBERTO"], index=None)
+            req_user_values_03 = ["GIORGI IVAN", "ANGOTTI FRANCESCO", "BALDINI ROBERTO"]
+            req_user = st.selectbox(":blue[Requester User(:red[*])]", req_user_values_03, index=None)
     st.divider()    
     rec_out =    {
                      "Req_dept": req_department,
@@ -50,13 +54,17 @@ def display_productgroup_section() -> dict:
     product_family = ""
     with st.container():
         st.header(":orange[Product group informations]")
-        product_line = st.selectbox(":blue[Product line(:red[*])]", ["POWER TAKE OFFs", "HYDRAULICS", "CYLINDERS", "ALL"], index=None)
+        product_line_values_00 = ["POWER TAKE OFFs", "HYDRAULICS", "CYLINDERS", "ALL"]
+        product_line = st.selectbox(":blue[Product line(:red[*])]", product_line_values_00, index=None)
         if product_line == "POWER TAKE OFFs":
-            product_family = st.selectbox(":blue[Product family(:red[*])]", ["GEARBOX PTO", "ENGINE PTO", "SPLIT SHAFT PTO", "PARALLEL GEARBOXES"], index=None)
+            product_line_values_01 = ["GEARBOX PTO", "ENGINE PTO", "SPLIT SHAFT PTO", "PARALLEL GEARBOXES"]
+            product_family = st.selectbox(":blue[Product family(:red[*])]", product_line_values_01, index=None)
         elif product_line == "HYDRAULICS":
-            product_family = st.selectbox(":blue[Product family(:red[*])]", ["PUMPS", "MOTORS", "VALVES", "WET KITS"], index=None)
+            product_line_values_02 = ["PUMPS", "MOTORS", "VALVES", "WET KITS"]
+            product_family = st.selectbox(":blue[Product family(:red[*])]", product_line_values_02, index=None)
         elif product_line == "CYLINDERS":
-            product_family = st.selectbox(":blue[Product family(:red[*])]", ["FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"], index=None)
+            product_line_values_03 = ["FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"]
+            product_family = st.selectbox(":blue[Product family(:red[*])]", product_line_values_03, index=None)
     st.divider()       
     rec_out =    {
                      "Prd_line": product_line,
@@ -66,19 +74,24 @@ def display_productgroup_section() -> dict:
 
 
 def display_request_section() -> dict:
-    """ """
+    """ Show a section to declare the request informations """
     req_type = ""
     req_category = ""
     st.header(":orange[Add a request]")
     with st.container():
-        req_priority = st.selectbox(":blue[Priority]", ["High", "Medium", "Low"], index=1)
-        req_type = st.selectbox(":blue[Request type (:red[*])]",["DOCUMENTATION", "PRODUCT", "SERVICE"], index=None)
+        priority_values_00 = ["High", "Medium", "Low"]
+        req_priority = st.selectbox(":blue[Priority]", priority_values_00, index=1)
+        type_values_00 = ["DOCUMENTATION", "PRODUCT", "SERVICE"]
+        req_type = st.selectbox(":blue[Request type (:red[*])]", type_values_00, index=None)
         if req_type == "PRODUCT":
-            req_category = st.selectbox(":blue[Request category(:red[*])]", ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"], index=None)
+            category_01 = ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"]
+            req_category = st.selectbox(":blue[Request category(:red[*])]", category_01, index=None)
         elif req_type == "DOCUMENTATION":
-            req_category = st.selectbox(":blue[Request category(:red[*])]", ["WEBPTO", "DRAWING", "IMDS (INTERNATIONAL MATERIAL DATA SYSTEM)", "CATALOGUE"], index=None)
+            category_02 = ["WEBPTO", "DRAWING", "IMDS (INTERNATIONAL MATERIAL DATA SYSTEM)", "CATALOGUE"]
+            req_category = st.selectbox(":blue[Request category(:red[*])]", category_02, index=None)
         elif req_type == "SERVICE":
-            req_category = st.selectbox(":blue[Request category(:red[*])]", ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"], index=None)
+            category_03 = ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"]
+            req_category = st.selectbox(":blue[Request category(:red[*])]", category_03, index=None)
         req_title = st.text_input(":blue[Request title(:red[*])]")
         req_detail = st.text_area(":blue[Request details(:red[*])]", key="req_det")
     st.divider()   
@@ -254,8 +267,8 @@ def main() -> None:
     rec_pgroup = display_productgroup_section()
     rec_req = display_request_section() 
     rec_request = rec_user | rec_pgroup | rec_req
-    today = datetime.datetime.now().strftime("%m-%d-%Y")
-    rec_request["Insert_date"] = today
+    cpudate = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    rec_request["Insert_date"] = cpudate
     st.button("Submit", type="primary", on_click=click_submit_button)
     if st.session_state.submit_clicked:
         if check_ticket_fields(rec_request):
