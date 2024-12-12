@@ -308,7 +308,7 @@ def main() -> None:
             log_values = dict()
             log_values["appname"] = APPNAME
             log_values["applink"] = __file__
-            log_values["apparam"] = "1ROW_TEST"
+            log_values["apparam"] = str(rec_request)
             log_values["appstatus"] = "COMPLETED"
             log_values["appmsg"] = " "
             write_applog_to_sqlitecloud(log_values)
