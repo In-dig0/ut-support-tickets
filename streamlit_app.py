@@ -254,7 +254,8 @@ def main() -> None:
     rec_pgroup = display_productgroup_section()
     rec_req = display_request_section() 
     rec_request = rec_user | rec_pgroup | rec_req
-#    st.divider()
+    today = datetime.datetime.now().strftime("%m-%d-%Y")
+    rec_request["Insert_date"] = today
     st.button("Submit", type="primary", on_click=click_submit_button)
     if st.session_state.submit_clicked:
         if check_ticket_fields(rec_request):
