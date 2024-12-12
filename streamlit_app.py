@@ -8,7 +8,7 @@ import sqlitecloud
 import pytz 
 
 
-APPNAME = "TORP" #Technical Office Request POC (Proof Of Concept)
+APPNAME = "TORP" #IPH Technical Office Request POC (Proof Of Concept)
 
 def display_app_title() -> None:
     """ Show app title and description """
@@ -237,7 +237,7 @@ def clear_text(t_txt):
 
 def write_applog_to_sqlitecloud(log_values:dict) -> None:
     """ Write applog into SQLite Cloud Database """
-    appname = __file__
+
     db_link = ""
     db_apikey = ""
     db_name = ""
@@ -261,9 +261,9 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     # Connect to SQLite Cloud platform
     try:
         conn = sqlitecloud.connect(conn_string)
-    except Exception as errMsg:
-        e = RuntimeError(f"**ERROR connecting to database: {errMsg}")
-        st.exception(e)
+    except st.StreamlitAPIException as errMsg:
+        st.write(f"**ERROR connecting to database: {errMsg}")
+        st.error(f"An error occurred: {errMsg}", icon="🚨")
     
     # Open SQLite database
     conn.execute(f"USE DATABASE {db_name}")
@@ -279,9 +279,9 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     values = (log_values["appname"], log_values["applink"], log_values["apparam"], log_values["appstatus"], log_values["appmsg"], cpudate)
     try:
         cursor.execute(sqlcode, values)
-    except Exception as errMsg:
-        e = RuntimeError(f"**ERROR inserting new applog row: {errMsg}")
-        st.exception(e)
+    except st.StreamlitAPIException as errMsg:
+        st.write(f"**ERROR inserting new applog row: {errMsg}")
+        st.error(f"An error occurred: {errMsg}", icon="🚨")
     else:
         conn.commit()        
     finally:
