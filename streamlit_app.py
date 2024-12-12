@@ -8,8 +8,8 @@ import streamlit as st
 
 def display_app_title() -> None:
     """ Show app title and description """
-    st.set_page_config(page_title="Support tickets", page_icon="🎫")
-    st.title("🎫 :blue[Support tickets]")
+    st.set_page_config(page_title="New Request", page_icon="🎫")
+    st.title("🎫 :blue[New request]")
     st.write(
         """
         This app shows how you can build an internal tool in Streamlit. Here, we are 
@@ -17,21 +17,24 @@ def display_app_title() -> None:
         existing tickets, and view some statistics.
         """
     )
+    st.markdown("Powered with Streamlit :streamlit:")
+    st.divider()
 
 
 def display_user_section() -> dict:
     """ Show a section to declare the user informations """
-    st.header(":orange[User informations]")
-    st.divider()
     req_department = ""
     req_user = ""
-    req_department = st.selectbox(":blue[Requester Department(:red[*])]", ["DMN-ACCOUNTING", "DTD-DESIGN TECHNICAL DEPARTMENT", "COMMERCIALE AFTER MARKET"], index=None)
-    if req_department == "DMN-ACCOUNTING":
-        req_user = st.selectbox(":blue[Requester User(:red[*])]", ["COMELLINI GIORGIO", "ROMANI CORRADO", "ROSSI PAOLA"], index=None)
-    elif req_department == "DTD-DESIGN TECHNICAL DEPARTMENT":
-        req_user = st.selectbox(":blue[Requester User(:red[*])]", ["CARLINI MICHELE", "FENARA GABRIELE", "PALMA NICOLA"], index=None)
-    elif req_department == "COMMERCIALE AFTER MARKET":
-        req_user = st.selectbox(":blue[Requester User(:red[*])]", ["GIORGI IVAN", "ANGOTTI FRANCESCO", "BALDINI ROBERTO"], index=None)
+    with st.container():
+        st.header(":orange[User informations]")
+        req_department = st.selectbox(":blue[Requester Department(:red[*])]", ["DMN-ACCOUNTING", "DTD-DESIGN TECHNICAL DEPARTMENT", "COMMERCIALE AFTER MARKET"], index=None)
+        if req_department == "DMN-ACCOUNTING":
+            req_user = st.selectbox(":blue[Requester User(:red[*])]", ["COMELLINI GIORGIO", "ROMANI CORRADO", "ROSSI PAOLA"], index=None)
+        elif req_department == "DTD-DESIGN TECHNICAL DEPARTMENT":
+            req_user = st.selectbox(":blue[Requester User(:red[*])]", ["CARLINI MICHELE", "FENARA GABRIELE", "PALMA NICOLA"], index=None)
+        elif req_department == "COMMERCIALE AFTER MARKET":
+            req_user = st.selectbox(":blue[Requester User(:red[*])]", ["GIORGI IVAN", "ANGOTTI FRANCESCO", "BALDINI ROBERTO"], index=None)
+    st.divider()    
     rec_out =    {
                      "Req_dept": req_department,
                      "Req_user": req_user
@@ -42,17 +45,19 @@ def display_user_section() -> dict:
 
 def display_productgroup_section() -> dict:
     """ Show a section to declare the product group informations """
-    st.header(":orange[Product group informations]")
-    st.divider()
+    
     product_line = ""
     product_family = ""
-    product_line = st.selectbox(":blue[Product line(:red[*])]", ["POWER TAKE OFFs", "HYDRAULICS", "CYLINDERS", "ALL"], index=None)
-    if product_line == "POWER TAKE OFFs":
-        product_family = st.selectbox(":blue[Product family(:red[*])]", ["GEARBOX PTO", "ENGINE PTO", "SPLIT SHAFT PTO", "PARALLEL GEARBOXES"], index=None)
-    elif product_line == "HYDRAULICS":
-        product_family = st.selectbox(":blue[Product family(:red[*])]", ["PUMPS", "MOTORS", "VALVES", "WET KITS"], index=None)
-    elif product_line == "CYLINDERS":
-        product_family = st.selectbox(":blue[Product family(:red[*])]", ["FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"], index=None)
+    with st.container():
+        st.header(":orange[Product group informations]")
+        product_line = st.selectbox(":blue[Product line(:red[*])]", ["POWER TAKE OFFs", "HYDRAULICS", "CYLINDERS", "ALL"], index=None)
+        if product_line == "POWER TAKE OFFs":
+            product_family = st.selectbox(":blue[Product family(:red[*])]", ["GEARBOX PTO", "ENGINE PTO", "SPLIT SHAFT PTO", "PARALLEL GEARBOXES"], index=None)
+        elif product_line == "HYDRAULICS":
+            product_family = st.selectbox(":blue[Product family(:red[*])]", ["PUMPS", "MOTORS", "VALVES", "WET KITS"], index=None)
+        elif product_line == "CYLINDERS":
+            product_family = st.selectbox(":blue[Product family(:red[*])]", ["FRONT-END CYLINDERS", "UNDERBODY CYLINDERS", "DOUBLE ACTING CYLINDERS", "BRACKETS FOR CYLINDERS"], index=None)
+    st.divider()       
     rec_out =    {
                      "Prd_line": product_line,
                      "Prd_family": product_family
@@ -62,20 +67,21 @@ def display_productgroup_section() -> dict:
 
 def display_request_section() -> dict:
     """ """
-    st.header(":orange[Add a request]")
-    st.divider()    
     req_type = ""
     req_category = ""
-    req_priority = st.selectbox(":blue[Priority]", ["High", "Medium", "Low"], index=1)
-    req_type = st.selectbox(":blue[Request type (:red[*])]",["DOCUMENTATION", "PRODUCT", "SERVICE"], index=None)
-    if req_type == "PRODUCT":
-        req_category = st.selectbox(":blue[Request category(:red[*])]", ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"], index=None)
-    elif req_type == "DOCUMENTATION":
-        req_category = st.selectbox(":blue[Request category(:red[*])]", ["WEBPTO", "DRAWING", "IMDS (INTERNATIONAL MATERIAL DATA SYSTEM)", "CATALOGUE"], index=None)
-    elif req_type == "SERVICE":
-        req_category = st.selectbox(":blue[Request category(:red[*])]", ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"], index=None)
-    req_title = st.text_input(":blue[Request title(:red[*])]")
-    req_detail = st.text_area(":blue[Request details(:red[*])]", key="req_det")
+    st.header(":orange[Add a request]")
+    with st.container():
+        req_priority = st.selectbox(":blue[Priority]", ["High", "Medium", "Low"], index=1)
+        req_type = st.selectbox(":blue[Request type (:red[*])]",["DOCUMENTATION", "PRODUCT", "SERVICE"], index=None)
+        if req_type == "PRODUCT":
+            req_category = st.selectbox(":blue[Request category(:red[*])]", ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"], index=None)
+        elif req_type == "DOCUMENTATION":
+            req_category = st.selectbox(":blue[Request category(:red[*])]", ["WEBPTO", "DRAWING", "IMDS (INTERNATIONAL MATERIAL DATA SYSTEM)", "CATALOGUE"], index=None)
+        elif req_type == "SERVICE":
+            req_category = st.selectbox(":blue[Request category(:red[*])]", ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"], index=None)
+        req_title = st.text_input(":blue[Request title(:red[*])]")
+        req_detail = st.text_area(":blue[Request details(:red[*])]", key="req_det")
+    st.divider()   
     rec_out =    {
                     "Req_priority": req_priority, 
                     "Req_type": req_type,
@@ -248,7 +254,7 @@ def main() -> None:
     rec_pgroup = display_productgroup_section()
     rec_req = display_request_section() 
     rec_request = rec_user | rec_pgroup | rec_req
-    st.divider()
+#    st.divider()
     st.button("Submit", type="primary", on_click=click_submit_button)
     if st.session_state.submit_clicked:
         if check_ticket_fields(rec_request):
