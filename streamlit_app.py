@@ -9,6 +9,7 @@ import pytz
 
 
 APPNAME = "TORP" #IPH Technical Office Request POC (Proof Of Concept)
+APPCODE = "TORP"
 
 def display_app_title() -> None:
     """ Show app title and description """
@@ -270,13 +271,13 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     cursor = conn.cursor()
     
     # Setup sqlcode for inserting applog as a new row
-    sqlcode = """INSERT INTO applog (appname, applink, apparam, appstatus, appmsg, cpudate)
-            VALUES (?, ?, ?, ?, ?, ?);
+    sqlcode = """INSERT INTO applog (appname, applink, appcode, apparam, appstatus, appmsg, cpudate)
+            VALUES (?, ?, ?, ?, ?, ?, ?);
             """
     rome_tz = pytz.timezone('Europe/Rome')
     rome_datetime = rome_tz.localize(datetime.datetime.now()) 
     cpudate = rome_datetime.strftime("%Y-%m-%d %H:%M:%S")
-    values = (log_values["appname"], log_values["applink"], log_values["apparam"], log_values["appstatus"], log_values["appmsg"], cpudate)
+    values = (log_values["appname"], log_values["applink"], log_values["appcode"], log_values["apparam"], log_values["appstatus"], log_values["appmsg"], cpudate)
     try:
         cursor.execute(sqlcode, values)
     except st.StreamlitAPIException as errMsg:
@@ -308,6 +309,7 @@ def main() -> None:
             log_values = dict()
             log_values["appname"] = APPNAME
             log_values["applink"] = __file__
+            log_values["appcode"] = APPCODE
             log_values["apparam"] = str(rec_request)
             log_values["appstatus"] = "COMPLETED"
             log_values["appmsg"] = " "
