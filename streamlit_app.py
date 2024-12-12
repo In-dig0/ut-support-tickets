@@ -1,10 +1,11 @@
 import datetime
-import random
-
+import os
 import altair as alt
 import numpy as np
 import pandas as pd
 import streamlit as st
+import sqlitecloud
+import pytz 
 
 def display_app_title() -> None:
     """ Show app title and description """
@@ -104,7 +105,7 @@ def display_request_section() -> dict:
                 }
     return rec_out 
 
-def check_ticket_fields(record: dict) -> bool:
+def check_request_fields(record: dict) -> bool:
     res = all(record.values())
     return res
 
@@ -127,33 +128,6 @@ def check_ticket_fields(record: dict) -> bool:
 #     """ """
 
 
-#     # We're adding tickets via an `st.form` and some input widgets. If widgets are used
-#     # in a form, the app will only rerun once the submit button is pressed.
-#     with st.form("add_ticket_form"):
-#         req_type = ""
-#         req_category = ""
-#         req_type = st.selectbox("Request type (:red[*])",["DOCUMENTATION", "PRODUCT", "SERVICE"], index=None)
-#         if req_type == "PRODUCT":
-#             req_category = st.selectbox("Request category(:red[*])", ["NEW PRODUCT", "PRODUCT CHANG", "OBSOLETE PRODUCT", "PRODUCT VALIDATION"], index=None)
-#         elif req_type == "DOCUMENTATION":
-#             req_category = st.selectbox("Request category(:red[*])", ["WEBPTO", "DRAWING", "IMDS (INTERNATIONAL MATERIAL DATA SYSTEM)", "CATALOGUE"], index=None)
-#         elif req_type == "SERVICE":
-#             req_category = st.selectbox("Request category(:red[*])", ["VISITING CUSTOMER PLANT", "VISITING SUPPLIER PLANT"], index=None)
-#         req_title = st.text_input("Request title(:red[*])")
-#         req_info = st.text_area("Request details(:red[*])")
-#         req_priority = st.selectbox("Priority", ["High", "Medium", "Low"], index=1)
-#         df_out = pd.DataFrame(
-#              [
-#                  {
-#                      "Req_type": req_type,
-#                      "Req_category": req_category,
-#                      "Req_priority": req_info,                     
-#                      "Req_title": req_title,
-#                      "Req_info": req_info
-#                  }
-#              ]
-#          )        
-#         submitted = st.form_submit_button("Submit")
 
 #     if submitted:
 #     #     # Make a dataframe for the new ticket and append it to the dataframe in session
@@ -258,6 +232,59 @@ def click_submit_button():
 def clear_text(t_txt):
     st.session_state[t_txt] = ""
 
+def write_applog_to_sqlitecloud(log_values:dict) -> None:
+    """ Write applog into SQLite Cloud Database """
+    appname = __file__
+    db_link = ""
+    db_apikey = ""
+    db_name = ""
+    # Get database information
+    try:
+        #Search DB credentials using OS.GETENV
+        db_link = os.getenv("SQLITECLOUD_DBLINK")
+        db_apikey = os.getenv("SQLITECLOUD_APIKEY")
+        db_name = os.getenv("SQLITECLOUD_DBNAME")
+    except st.StreamlitAPIException as errMsg:
+        try:
+            #Search DB credentials using ST.SECRETS
+            db_link = st.secrets["SQLITE_DBLINK"]
+            db_apikey = st.secrets["SQLITE_APIKEY"]
+            db_name = st.secrets["SQLITE_DBNAME"]
+        except st.StreamlitAPIException as errMsg:
+            st.write("**ERROR: DB credentials NOT FOUND")    
+            st.error(f"An error occurred: {errMsg}", icon="🚨")
+    
+    conn_string = "".join([db_link, db_apikey])
+    # Connect to SQLite Cloud platform
+    try:
+        conn = sqlitecloud.connect(conn_string)
+    except Exception as errMsg:
+        e = RuntimeError(f"**ERROR connecting to database: {errMsg}")
+        st.exception(e)
+    
+    # Open SQLite database
+    conn.execute(f"USE DATABASE {db_name}")
+    cursor = conn.cursor()
+    
+    # Setup sqlcode for inserting applog as a new row
+    sqlcode = """INSERT INTO applog (appname, applink, apparam, appstatus, appmsg, cpudate)
+            VALUES (?, ?, ?, ?, ?, ?);
+            """
+    rome_tz = pytz.timezone('Europe/Rome')
+    rome_datetime = rome_tz.localize(datetime.datetime.now()) 
+    cpudate = rome_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    values = (log_values["appname"], log_values["applink"], log_values["apparam"], log_values["appstatus"], log_values["appmsg"], cpudate)
+    try:
+        cursor.execute(sqlcode, values)
+    except Exception as errMsg:
+        e = RuntimeError(f"**ERROR inserting new applog row: {errMsg}")
+        st.exception(e)
+    else:
+        conn.commit()        
+    finally:
+        cursor.close()
+
+
 def main() -> None:
     if 'submit_clicked' not in st.session_state:
         st.session_state.submit_clicked = False
@@ -271,10 +298,17 @@ def main() -> None:
     rec_request["Insert_date"] = cpudate
     st.button("Submit", type="primary", on_click=click_submit_button)
     if st.session_state.submit_clicked:
-        if check_ticket_fields(rec_request):
+        if check_request_fields(rec_request):
             df_request = pd.DataFrame([rec_request])
-            st.write("Ticket submitted! Here are the ticket details:")
+            st.write("Request submitted! Here are the ticket details:")
             st.dataframe(df_request, use_container_width=True, hide_index=True)
+            log_values = dict()
+            log_values["appname"] = __file__
+            log_values["applink"] = " "
+            log_values["apparam"] = rec_request
+            log_values["appstatus"] = "COMPLETED"
+            log_values["appmsg"] = " "
+            write_applog_to_sqlitecloud(log_values)
             
         else:
             st.write(":red-background[**ERROR: please fill all mandatory fields (:red[*])]")
