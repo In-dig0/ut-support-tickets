@@ -7,6 +7,9 @@ import streamlit as st
 import sqlitecloud
 import pytz 
 
+
+APPNAME = "TORP" #Technical Office Request POC (Proof Of Concept)
+
 def display_app_title() -> None:
     """ Show app title and description """
     st.set_page_config(page_title="New Request", page_icon="🎫")
@@ -303,8 +306,8 @@ def main() -> None:
             st.write("Request submitted! Here are the ticket details:")
             st.dataframe(df_request, use_container_width=True, hide_index=True)
             log_values = dict()
-            log_values["appname"] = __file__
-            log_values["applink"] = " "
+            log_values["appname"] = APPNAME
+            log_values["applink"] = __file__
             log_values["apparam"] = "1ROW_TEST"
             log_values["appstatus"] = "COMPLETED"
             log_values["appmsg"] = " "
