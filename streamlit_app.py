@@ -261,7 +261,7 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     # Connect to SQLite Cloud platform
     try:
         conn = sqlitecloud.connect(conn_string)
-    except st.StreamlitAPIException as errMsg:
+    except Exception as errMsg:
         st.error(f"**ERROR connecting to database: {errMsg}", icon="🚨")
     
     # Open SQLite database
@@ -282,15 +282,16 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     except Exception as errMsg:
         st.error(f"**ERROR inserting new applog row: {errMsg}", icon="🚨")
     else:
-        conn.commit()        
+        conn.commit()
+        #row = cursor.fetchone()
+        #st.write(f"LAST ROW APPLOG: {row}") 
     finally:
         cursor.close()
-   # st.write(f"ID ROW: {id}")
+
 
 def main() -> None:
     if 'submit_clicked' not in st.session_state:
         st.session_state.submit_clicked = False
-
     display_app_title()
     rec_user = display_user_section()
     rec_pgroup = display_productgroup_section()
@@ -311,8 +312,7 @@ def main() -> None:
             log_values["apparam"] = str(rec_request)
             log_values["appstatus"] = "COMPLETED"
             log_values["appmsg"] = " "
-            write_applog_to_sqlitecloud(log_values)
-            
+            write_applog_to_sqlitecloud(log_values)           
         else:
             st.write(":red-background[**ERROR: please fill all mandatory fields (:red[*])]")
 
