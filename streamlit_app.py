@@ -328,6 +328,7 @@ def write_row_to_sqlitecloud(row:dict) -> None:
     values = (row["Req_dept"], row["Req_user"], row["Prd_line"], row["Prd_family"], row["Req_priority"], row["Req_type"], row["Req_category"], row["Req_title"], row["Req_detail"])
     try:
         cursor.execute(sqlcode, values)
+    #    cursor.lastrowid
     except Exception as errMsg:
         st.error(f"**ERROR inserting row: \n{errMsg}", icon="🚨")
     else:
