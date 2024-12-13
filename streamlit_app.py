@@ -269,7 +269,7 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     cursor = conn.cursor()
     
     # Setup sqlcode for inserting applog as a new row
-    sqlcode = """INSERT INTO applog (appname, applink, appcode, apparam, appstatus, appmsg, cpudate) RETURNING idrow
+    sqlcode = """INSERT INTO applog (appname, applink, appcode, apparam, appstatus, appmsg, cpudate) 
             VALUES (?, ?, ?, ?, ?, ?, ?);
             """
         
@@ -285,7 +285,7 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
         conn.commit()        
     finally:
         cursor.close()
-    st.write(f"ID ROW: {id}")
+   # st.write(f"ID ROW: {id}")
 
 def main() -> None:
     if 'submit_clicked' not in st.session_state:
