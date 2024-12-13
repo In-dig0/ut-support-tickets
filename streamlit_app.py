@@ -269,7 +269,7 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     cursor = conn.cursor()
     
     # Setup sqlcode for inserting applog as a new row
-    sqlcode = """INSERT INTO applog (appname, applink, appcode, apparam, appstatus, appmsg, cpudate)
+    sqlcode = """INSERT INTO applog (appname, applink, appcode, apparam, appstatus, appmsg, cpudate) RETURNING idrow
             VALUES (?, ?, ?, ?, ?, ?, ?);
             """
         
@@ -279,13 +279,13 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     values = (log_values["appname"], log_values["applink"], log_values["appcode"], log_values["apparam"], log_values["appstatus"], log_values["appmsg"], cpudate)
     try:
         cursor.execute(sqlcode, values)
-    except st.StreamlitAPIException as errMsg:
+    except Exception as errMsg:
         st.error(f"**ERROR inserting new applog row: {errMsg}", icon="🚨")
     else:
         conn.commit()        
     finally:
         cursor.close()
-
+    st.write(f"ID ROW: {id}")
 
 def main() -> None:
     if 'submit_clicked' not in st.session_state:
