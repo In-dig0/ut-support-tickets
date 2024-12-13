@@ -290,7 +290,7 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
 
 def write_row_to_sqlitecloud(row:dict) -> None:
     """ Write applog into SQLite Cloud Database """
-
+    rc = 0
     db_link = ""
     db_apikey = ""
     db_name = ""
@@ -321,21 +321,22 @@ def write_row_to_sqlitecloud(row:dict) -> None:
     cursor = conn.cursor()
     
     # Setup sqlcode for inserting applog as a new row
-    sqlcode = """INSERT INTO TORP_REQUESTS (r_dept, r_requester, r_pline, r_pfamily, r_priority, r_type, r_category, r_title, r_detail) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+    sqlcode = """INSERT INTO TORP_REQUESTS (r_id, r_dept, r_requester, r_pline, r_pfamily, r_priority, r_type, r_category, r_title, r_detail, r_insdate) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
             """    
     # Calculate the next rowid
     cursor.execute('SELECT MAX(r_id) FROM TORP_REQUESTS')
     max_rowid = cursor.fetchone()[0]
     next_rowid = (max_rowid + 1) if max_rowid is not None else 1
-    
+     
     # Setup row values
-    values = (next_rowid, row["Req_dept"], row["Req_user"], row["Prd_line"], row["Prd_family"], row["Req_priority"], row["Req_type"], row["Req_category"], row["Req_title"], row["Req_detail"])
+    values = (next_rowid, row["Req_dept"], row["Req_user"], row["Prd_line"], row["Prd_family"], row["Req_priority"], row["Req_type"], row["Req_category"], row["Req_title"], row["Req_detail"], row["Req_insdate"])
     try:
         cursor.execute(sqlcode, values)
     #    cursor.lastrowid
     except Exception as errMsg:
         st.error(f"**ERROR inserting row: \n{errMsg}", icon="🚨")
+        rc = 1
     else:
         conn.commit()
         #row = cursor.fetchone()
@@ -343,7 +344,7 @@ def write_row_to_sqlitecloud(row:dict) -> None:
     finally:
         cursor.close()
     req_nr = f"R-{next_rowid}"
-    return req_nr    
+    return req_nr, rc    
 
 def main() -> None:
     if 'submit_clicked' not in st.session_state:
@@ -353,24 +354,34 @@ def main() -> None:
     rec_pgroup = display_productgroup_section()
     rec_req = display_request_section() 
     rec_request = rec_user | rec_pgroup | rec_req
-    cpudate = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    rec_request["Insert_date"] = cpudate
+    insdate = datetime.datetime.now().strftime("%Y-%m-%d")
+    rec_request["Req_insdate"] = insdate
     st.button("Submit", type="primary", on_click=click_submit_button)
     if st.session_state.submit_clicked:
         if check_request_fields(rec_request):
-            nr_req = write_row_to_sqlitecloud(rec_request)
-            rec_request["Req_nr"] = nr_req
-            df_request = pd.DataFrame([rec_request])
-            st.write(f"Request {nr_req} submitted! Here are the ticket details:")
-            st.dataframe(df_request, use_container_width=True, hide_index=True)
-
+            nr_req = ""
             log_values = dict()
+            nr_req, rc = write_row_to_sqlitecloud(rec_request)
+            if rc == 0:
+                # Creare una lista di tuple chiave-valore
+                items = list(rec_request.items())
+                # Inserire la nuova coppia chiave-valore nella prima posizione
+                items.insert(0, ("Req_nr", nr_req))
+                # Convertire di nuovo la lista in un dizionario
+                rec_request = dict(items)
+                st.write(f"Request {nr_req} submitted! Here are the ticket details:")
+                df_request = pd.DataFrame([rec_request])
+                st.dataframe(df_request, use_container_width=True, hide_index=True)
+                log_values["appstatus"] = "COMPLETED"
+                log_values["appmsg"] = " "
+            else:
+                log_values["appstatus"] = "ERROR"
+                log_values["appmsg"] = "TABLE TORP_REQUESTS: UNIQUE CONSTRAIN ON FIELD r_title"    
+            
             log_values["appname"] = APPNAME
             log_values["applink"] = __file__
             log_values["appcode"] = APPCODE
             log_values["apparam"] = str(rec_request)
-            log_values["appstatus"] = "COMPLETED"
-            log_values["appmsg"] = " "
             write_applog_to_sqlitecloud(log_values)           
         else:
             st.write(":red-background[**ERROR: please fill all mandatory fields (:red[*])]")
