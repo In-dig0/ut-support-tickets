@@ -324,8 +324,13 @@ def write_row_to_sqlitecloud(row:dict) -> None:
     sqlcode = """INSERT INTO TORP_REQUESTS (r_dept, r_requester, r_pline, r_pfamily, r_priority, r_type, r_category, r_title, r_detail) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
             """    
+    # Calculate the next rowid
+    cursor.execute('SELECT MAX(r_id) FROM TORP_REQUESTS')
+    max_rowid = cursor.fetchone()[0]
+    next_rowid = (max_rowid + 1) if max_rowid is not None else 1
+    
     # Setup row values
-    values = (row["Req_dept"], row["Req_user"], row["Prd_line"], row["Prd_family"], row["Req_priority"], row["Req_type"], row["Req_category"], row["Req_title"], row["Req_detail"])
+    values = (next_rowid, row["Req_dept"], row["Req_user"], row["Prd_line"], row["Prd_family"], row["Req_priority"], row["Req_type"], row["Req_category"], row["Req_title"], row["Req_detail"])
     try:
         cursor.execute(sqlcode, values)
     #    cursor.lastrowid
@@ -337,6 +342,8 @@ def write_row_to_sqlitecloud(row:dict) -> None:
         #st.write(f"LAST ROW APPLOG: {row}") 
     finally:
         cursor.close()
+    req_nr = f"R-{next_rowid}"
+    return req_nr    
 
 def main() -> None:
     if 'submit_clicked' not in st.session_state:
@@ -351,10 +358,12 @@ def main() -> None:
     st.button("Submit", type="primary", on_click=click_submit_button)
     if st.session_state.submit_clicked:
         if check_request_fields(rec_request):
+            nr_req = write_row_to_sqlitecloud(rec_request)
+            rec_request["Req_nr"] = nr_req
             df_request = pd.DataFrame([rec_request])
-            st.write("Request submitted! Here are the ticket details:")
+            st.write(f"Request {nr_req} submitted! Here are the ticket details:")
             st.dataframe(df_request, use_container_width=True, hide_index=True)
-            write_row_to_sqlitecloud(rec_request)
+
             log_values = dict()
             log_values["appname"] = APPNAME
             log_values["applink"] = __file__
