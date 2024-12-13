@@ -255,16 +255,14 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
             db_apikey = st.secrets["SQLITE_APIKEY"]
             db_name = st.secrets["SQLITE_DBNAME"]
         except st.StreamlitAPIException as errMsg:
-            st.write("**ERROR: DB credentials NOT FOUND")    
-            st.error(f"An error occurred: {errMsg}", icon="🚨")
+            st.error(f"**ERROR: DB credentials NOT FOUND: {errMsg}", icon="🚨")
     
     conn_string = "".join([db_link, db_apikey])
     # Connect to SQLite Cloud platform
     try:
         conn = sqlitecloud.connect(conn_string)
     except st.StreamlitAPIException as errMsg:
-        st.write(f"**ERROR connecting to database: {errMsg}")
-        st.error(f"An error occurred: {errMsg}", icon="🚨")
+        st.error(f"**ERROR connecting to database: {errMsg}", icon="🚨")
     
     # Open SQLite database
     conn.execute(f"USE DATABASE {db_name}")
@@ -274,6 +272,7 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     sqlcode = """INSERT INTO applog (appname, applink, appcode, apparam, appstatus, appmsg, cpudate)
             VALUES (?, ?, ?, ?, ?, ?, ?);
             """
+        
     rome_tz = pytz.timezone('Europe/Rome')
     rome_datetime = rome_tz.localize(datetime.datetime.now()) 
     cpudate = rome_datetime.strftime("%Y-%m-%d %H:%M:%S")
@@ -281,8 +280,7 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     try:
         cursor.execute(sqlcode, values)
     except st.StreamlitAPIException as errMsg:
-        st.write(f"**ERROR inserting new applog row: {errMsg}")
-        st.error(f"An error occurred: {errMsg}", icon="🚨")
+        st.error(f"**ERROR inserting new applog row: {errMsg}", icon="🚨")
     else:
         conn.commit()        
     finally:
