@@ -105,7 +105,7 @@ def display_request_section() -> dict:
                     "Req_type": req_type,
                     "Req_category": req_category,                    
                     "Req_title": req_title,
-                    "Req_info": req_detail
+                    "Req_detail": req_detail
                 }
     return rec_out 
 
@@ -255,14 +255,14 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
             db_apikey = st.secrets["SQLITE_APIKEY"]
             db_name = st.secrets["SQLITE_DBNAME"]
         except st.StreamlitAPIException as errMsg:
-            st.error(f"**ERROR: DB credentials NOT FOUND: {errMsg}", icon="🚨")
+            st.error(f"**ERROR: DB credentials NOT FOUND: \n{errMsg}", icon="🚨")
     
     conn_string = "".join([db_link, db_apikey])
     # Connect to SQLite Cloud platform
     try:
         conn = sqlitecloud.connect(conn_string)
     except Exception as errMsg:
-        st.error(f"**ERROR connecting to database: {errMsg}", icon="🚨")
+        st.error(f"**ERROR connecting to database: \n{errMsg}", icon="🚨")
     
     # Open SQLite database
     conn.execute(f"USE DATABASE {db_name}")
@@ -280,7 +280,7 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     try:
         cursor.execute(sqlcode, values)
     except Exception as errMsg:
-        st.error(f"**ERROR inserting new applog row: {errMsg}", icon="🚨")
+        st.error(f"**ERROR inserting new applog row: \n{errMsg}", icon="🚨")
     else:
         conn.commit()
         #row = cursor.fetchone()
@@ -288,6 +288,54 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     finally:
         cursor.close()
 
+def write_row_to_sqlitecloud(row:dict) -> None:
+    """ Write applog into SQLite Cloud Database """
+
+    db_link = ""
+    db_apikey = ""
+    db_name = ""
+    # Get database information
+    try:
+        #Search DB credentials using OS.GETENV
+        db_link = os.getenv("SQLITECLOUD_DBLINK")
+        db_apikey = os.getenv("SQLITECLOUD_APIKEY")
+        db_name = os.getenv("SQLITECLOUD_DBNAME")
+    except st.StreamlitAPIException as errMsg:
+        try:
+            #Search DB credentials using ST.SECRETS
+            db_link = st.secrets["SQLITE_DBLINK"]
+            db_apikey = st.secrets["SQLITE_APIKEY"]
+            db_name = st.secrets["SQLITE_DBNAME"]
+        except st.StreamlitAPIException as errMsg:
+            st.error(f"**ERROR: DB credentials NOT FOUND: \n{errMsg}", icon="🚨")
+    
+    conn_string = "".join([db_link, db_apikey])
+    # Connect to SQLite Cloud platform
+    try:
+        conn = sqlitecloud.connect(conn_string)
+    except Exception as errMsg:
+        st.error(f"**ERROR connecting to database: \n{errMsg}", icon="🚨")
+    
+    # Open SQLite database
+    conn.execute(f"USE DATABASE {db_name}")
+    cursor = conn.cursor()
+    
+    # Setup sqlcode for inserting applog as a new row
+    sqlcode = """INSERT INTO TORP_REQUESTS (r_dept, r_requester, r_pline, r_pfamily, r_priority, r_type, r_category, r_title, r_detail) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """    
+    # Setup row values
+    values = (row["Req_dept"], row["Req_user"], row["Prd_line"], row["Prd_family"], row["Req_priority"], row["Req_type"], row["Req_category"], row["Req_title"], row["Req_detail"])
+    try:
+        cursor.execute(sqlcode, values)
+    except Exception as errMsg:
+        st.error(f"**ERROR inserting row: \n{errMsg}", icon="🚨")
+    else:
+        conn.commit()
+        #row = cursor.fetchone()
+        #st.write(f"LAST ROW APPLOG: {row}") 
+    finally:
+        cursor.close()
 
 def main() -> None:
     if 'submit_clicked' not in st.session_state:
@@ -305,6 +353,7 @@ def main() -> None:
             df_request = pd.DataFrame([rec_request])
             st.write("Request submitted! Here are the ticket details:")
             st.dataframe(df_request, use_container_width=True, hide_index=True)
+            write_row_to_sqlitecloud(rec_request)
             log_values = dict()
             log_values["appname"] = APPNAME
             log_values["applink"] = __file__
