@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 import sqlitecloud
 import pytz 
-
+import io 
 
 APPNAME = "TORP" #IPH Technical Office Request POC (Proof Of Concept)
 APPCODE = "TORP"
@@ -108,6 +108,27 @@ def display_request_section() -> dict:
                     "Req_detail": req_detail
                 }
     return rec_out 
+
+def upload_pdf_file() -> None:
+    """ Widget used to upload an xml file """
+    uploaded_file = st.file_uploader("Choose a PDF file:", type="pdf", accept_multiple_files=False)
+    return uploaded_file
+
+def display_attachment_section() -> dict:
+    """ Show a section to upload attachments """
+    rec_out = dict()
+    st.header(":orange[Add an attachment (only PDF file)]")
+    with st.container():
+        uploaded_file = upload_pdf_file()
+    if upload_pdf_file is not None:
+        buffer = io.BytesIO(uploaded_file.getvalue())
+        rec_out =    {
+                    "Atch_name": uploaded_file.name,
+                    "Atch_type": "GENERIC",
+                    "Atch_link": " ",                    
+                    "Atch_data": buffer,
+                }
+    return rec_out       
 
 def check_request_fields(record: dict) -> bool:
     res = all(record.values())
@@ -236,8 +257,8 @@ def click_submit_button():
 def clear_text(t_txt):
     st.session_state[t_txt] = ""
 
-def write_applog_to_sqlitecloud(log_values:dict) -> None:
-    """ Write applog into SQLite Cloud Database """
+def save_applog_to_sqlitecloud(log_values:dict) -> None:
+    """ Save applog into SQLite Cloud Database """
 
     db_link = ""
     db_apikey = ""
@@ -288,8 +309,8 @@ def write_applog_to_sqlitecloud(log_values:dict) -> None:
     finally:
         cursor.close()
 
-def write_row_to_sqlitecloud(row:dict) -> None:
-    """ Write applog into SQLite Cloud Database """
+def save_request_to_sqlitecloud(row:dict, atch: dict) -> None:
+    """ Save applog into SQLite Cloud Database """
     rc = 0
     db_link = ""
     db_apikey = ""
@@ -343,6 +364,8 @@ def write_row_to_sqlitecloud(row:dict) -> None:
         #st.write(f"LAST ROW APPLOG: {row}") 
     finally:
         cursor.close()
+        conn.close()
+
     req_nr = f"R-{next_rowid}"
     return req_nr, rc    
 
@@ -352,7 +375,8 @@ def main() -> None:
     display_app_title()
     rec_user = display_user_section()
     rec_pgroup = display_productgroup_section()
-    rec_req = display_request_section() 
+    rec_req = display_request_section()
+    rec_attchment = display_attachment_section() 
     rec_request = rec_user | rec_pgroup | rec_req
     insdate = datetime.datetime.now().strftime("%Y-%m-%d")
     rec_request["Req_insdate"] = insdate
@@ -360,8 +384,8 @@ def main() -> None:
     if st.session_state.submit_clicked:
         if check_request_fields(rec_request):
             nr_req = ""
-            log_values = dict()
-            nr_req, rc = write_row_to_sqlitecloud(rec_request)
+            applog = dict()
+            nr_req, rc = save_request_to_sqlitecloud(rec_request, rec_attchment)
             if rc == 0:
                 # Creare una lista di tuple chiave-valore
                 items = list(rec_request.items())
@@ -372,17 +396,17 @@ def main() -> None:
                 st.write(f"Request {nr_req} submitted! Here are the ticket details:")
                 df_request = pd.DataFrame([rec_request])
                 st.dataframe(df_request, use_container_width=True, hide_index=True)
-                log_values["appstatus"] = "COMPLETED"
-                log_values["appmsg"] = " "
+                applog["appstatus"] = "COMPLETED"
+                applog["appmsg"] = " "
             else:
-                log_values["appstatus"] = "ERROR"
-                log_values["appmsg"] = "TABLE TORP_REQUESTS: UNIQUE CONSTRAIN ON FIELD r_title"    
+                applog["appstatus"] = "ERROR"
+                applog["appmsg"] = "TABLE TORP_REQUESTS: UNIQUE CONSTRAIN ON FIELD r_title"    
             
-            log_values["appname"] = APPNAME
-            log_values["applink"] = __file__
-            log_values["appcode"] = APPCODE
-            log_values["apparam"] = str(rec_request)
-            write_applog_to_sqlitecloud(log_values)           
+            applog["appname"] = APPNAME
+            applog["applink"] = __file__
+            applog["appcode"] = APPCODE
+            applog["apparam"] = str(rec_request)
+            save_applog_to_sqlitecloud(applog)           
         else:
             st.write(":red-background[**ERROR: please fill all mandatory fields (:red[*])]")
 
