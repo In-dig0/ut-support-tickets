@@ -365,7 +365,7 @@ def save_request_to_sqlitecloud(row:dict, atch: dict) -> None:
         rc = 0
     if len(atch) > 0:
     # Setup sqlcode for inserting applog as a new row
-        sqlcode = """INSERT INTO TORP_ATTACHMENTS (a_type, a_title, a_link, a_data, a_requid) 
+        sqlcode = """INSERT INTO TORP_ATTACHMENTS (a_type, a_title, a_link, a_data, a_reqid) 
                 VALUES (?, ?, ?, ?, ?);
                 """  
             # Setup row values
