@@ -369,7 +369,7 @@ def save_request_to_sqlitecloud(row:dict, atch: dict) -> None:
                 VALUES (?, ?, ?, ?, ?);
                 """  
             # Setup row values
-        values = (atch["Atch_name"], atch["Atch_title"], atch["Atch_link"], atch[Atch_data], next_rowid)
+        values = (atch["Atch_name"], atch["Atch_type"], atch["Atch_link"], atch["Atch_data"], next_rowid)
         try:
             cursor.execute(sqlcode, values)
         #    cursor.lastrowid
@@ -382,7 +382,7 @@ def save_request_to_sqlitecloud(row:dict, atch: dict) -> None:
     cursor.close()    
     if conn:
         conn.close()
-        
+
     return req_nr, rc    
 
 def main() -> None:
