@@ -366,8 +366,8 @@ def save_request_to_sqlitecloud(row:dict, atch: dict) -> None:
     finally:
         cursor.close()
         conn.close()
-
-    req_nr = f"R-{next_rowid.zfill(4)}"
+    
+    req_nr = f"R-{str(next_rowid).zfill(4)}"
     return req_nr, rc    
 
 def main() -> None:
