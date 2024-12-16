@@ -109,7 +109,7 @@ def display_request_section() -> dict:
                 }
     return rec_out 
 
-def upload_pdf_file() -> None:
+def upload_pdf_file():
     """ Widget used to upload an xml file """
     uploaded_file = st.file_uploader("Choose a PDF file:", type="pdf", accept_multiple_files=False)
     return uploaded_file
@@ -121,12 +121,13 @@ def display_attachment_section() -> dict:
     with st.container():
         uploaded_file = upload_pdf_file()
     if uploaded_file is not None:
-        buffer = ""
+        # To read file as bytes:
+        bytes_data = uploaded_file.getvalue()
         rec_out =    {
                     "Atch_name": uploaded_file.name,
                     "Atch_type": "GENERIC",
                     "Atch_link": " ",                    
-                    "Atch_data": buffer,
+                    "Atch_data": bytes_data,
                 }
     st.divider()              
     return rec_out       
@@ -305,14 +306,13 @@ def save_applog_to_sqlitecloud(log_values:dict) -> None:
         st.error(f"**ERROR inserting new applog row: \n{errMsg}", icon="🚨")
     else:
         conn.commit()
-        #row = cursor.fetchone()
-        #st.write(f"LAST ROW APPLOG: {row}") 
     finally:
         cursor.close()
 
 def save_request_to_sqlitecloud(row:dict, atch: dict) -> None:
     """ Save applog into SQLite Cloud Database """
     rc = 0
+    req_nr = dict()
     db_link = ""
     db_apikey = ""
     db_name = ""
@@ -357,17 +357,32 @@ def save_request_to_sqlitecloud(row:dict, atch: dict) -> None:
         cursor.execute(sqlcode, values)
     #    cursor.lastrowid
     except Exception as errMsg:
-        st.error(f"**ERROR inserting row: \n{errMsg}", icon="🚨")
+        st.error(f"**ERROR inserting row in tab TORP_REQUESTS: \n{errMsg}", icon="🚨")
         rc = 1
     else:
         conn.commit()
-        #row = cursor.fetchone()
-        #st.write(f"LAST ROW APPLOG: {row}") 
-    finally:
-        cursor.close()
-        conn.close()
+        req_nr = f"R-{str(next_rowid).zfill(4)}"
+        rc = 0
+    if len(atch) > 0:
+    # Setup sqlcode for inserting applog as a new row
+        sqlcode = """INSERT INTO TORP_ATTACHMENTS (a_type, a_title, a_link, a_data, a_requid) 
+                VALUES (?, ?, ?, ?, ?);
+                """  
+            # Setup row values
+        values = (atch["Atch_name"], atch["Atch_title"], atch["Atch_link"], atch[Atch_data], next_rowid)
+        try:
+            cursor.execute(sqlcode, values)
+        #    cursor.lastrowid
+        except Exception as errMsg:
+            st.error(f"**ERROR inserting row in tab TORP_ATTACHMENTS: \n{errMsg}", icon="🚨")
+            rc = 1
+        else:
+            conn.commit()
     
-    req_nr = f"R-{str(next_rowid).zfill(4)}"
+    cursor.close()    
+    if conn:
+        conn.close()
+        
     return req_nr, rc    
 
 def main() -> None:
