@@ -120,14 +120,15 @@ def display_attachment_section() -> dict:
     st.header(":orange[Add an attachment (only PDF file)]")
     with st.container():
         uploaded_file = upload_pdf_file()
-    if upload_pdf_file is not None:
-        buffer = io.BytesIO(uploaded_file.getvalue())
+    if uploaded_file is not None:
+        buffer = ""
         rec_out =    {
                     "Atch_name": uploaded_file.name,
                     "Atch_type": "GENERIC",
                     "Atch_link": " ",                    
                     "Atch_data": buffer,
                 }
+    st.divider()              
     return rec_out       
 
 def check_request_fields(record: dict) -> bool:
