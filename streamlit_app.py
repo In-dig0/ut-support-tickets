@@ -147,7 +147,7 @@ def display_request_section() -> dict:
 
 def upload_pdf_file():
     """ Widget used to upload an xml file """
-    uploaded_file = st.file_uploader("Choose a PDF file:", type="pdf", accept_multiple_files=False)
+    uploaded_file = st.file_uploader("Choose a PDF file:", type=["pdf","jpg"], accept_multiple_files=False)
     return uploaded_file
 
 def display_attachment_section() -> dict:
