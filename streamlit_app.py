@@ -158,7 +158,8 @@ def display_attachment_section() -> dict:
         uploaded_file = upload_pdf_file()
     if uploaded_file is not None:
         # To read file as bytes:
-        bytes_data = uploaded_file.getvalue()
+        #bytes_data = uploaded_file.getvalue()
+        bytes_data = uploaded_file.read()
         rec_out =    {
                     "Atch_name": uploaded_file.name,
                     "Atch_type": "GENERIC",
@@ -283,7 +284,7 @@ def save_request_to_sqlitecloud(row:dict, atch: dict) -> None:
         req_nr = f"R-{str(next_rowid).zfill(4)}"
         rc = 0
     if len(atch) > 0:
-    # Setup sqlcode for inserting applog as a new row
+    # Setup sqlcode for inserting attachments
         sqlcode = """INSERT INTO TORP_ATTACHMENTS (a_type, a_title, a_link, a_data, a_reqid) 
                 VALUES (?, ?, ?, ?, ?);
                 """  
